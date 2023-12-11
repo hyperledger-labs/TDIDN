@@ -1,0 +1,107 @@
+version: "3.3"
+
+services:
+  tdin:
+    build:
+      context: ./frontend/TDIN
+      dockerfile: Dockerfile
+    container_name: tdin
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - web-wallet
+      - steward
+      - holder
+      - issuer
+      - verifier
+
+  web-wallet:
+    build:
+      context: ./frontend/web-wallet
+      dockerfile: Dockerfile
+    container_name: web-wallet
+    env_file:
+      - .env
+    ports:
+      - "3001:3000"
+    depends_on:
+      - holder
+
+  steward:
+    build:
+      context: ./backend/Steward
+      dockerfile: Dockerfile
+    container_name: steward
+    volumes:
+      - ./containers-data/steward-server:/root
+    env_file:
+      - .env
+    networks:
+      - indy_pool_network
+
+  holder:
+    build:
+      context: ./backend/Holder
+      dockerfile: Dockerfile
+    container_name: holder
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./containers-data/holder-server:/root
+    env_file:
+      - .env
+    depends_on:
+      - steward
+      - postgres
+    networks:
+      - indy_pool_network
+
+  issuer:
+    build:
+      context: ./backend/Issuer
+      dockerfile: Dockerfile
+    container_name: issuer
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./containers-data/issuer-server:/root
+    env_file:
+      - .env
+    depends_on:
+      - steward
+      - holder
+    networks:
+      - indy_pool_network
+
+  verifier:
+    build:
+      context: ./backend/Verifier
+      dockerfile: Dockerfile
+    container_name: verifier
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./containers-data/verifier-server:/root
+    env_file:
+      - .env
+    depends_on:
+      - steward
+      - holder
+    networks:
+      - indy_pool_network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./containers-data/verifier-server:/var/lib/postgresql/data
+
+networks:
+  indy_pool_network:
+    external: true
