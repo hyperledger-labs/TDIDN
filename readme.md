@@ -14,6 +14,7 @@ Before you start, make sure you have the following prerequisites installed on yo
 
 - [Git](https://git-scm.com/)
 - [Docker](https://docs.docker.com/engine/install/)
+- [Hyperledger Indy test pool](https://github.com/hyperledger/indy-sdk?tab=readme-ov-file#3-starting-the-test-pool-on-a-docker-network)
 
 ## Getting Started
 
